@@ -1,0 +1,35 @@
+:root{--navy:#102c46;--navy2:#173f60;--green:#078846;--green2:#056b38;--mint:#eaf7f0;--line:#dbe5e9;--ink:#18313f;--muted:#6b7f89}
+body{font-family:"Segoe UI",Inter,Arial,sans-serif;background:linear-gradient(135deg,#eef5f6,#f8fafb 52%,#edf7f2);color:var(--ink)}
+button{border-radius:10px;background:var(--navy);transition:.16s ease}
+button:hover{filter:none;transform:translateY(-1px);box-shadow:0 6px 16px #102c4629}
+button.secondary{background:#eef3f5;color:var(--navy);border:1px solid #d7e2e7}
+button.success{background:linear-gradient(135deg,var(--green),var(--green2))}
+header{height:94px;background:linear-gradient(120deg,#0d2942,#163e5e);border:0;color:#fff;padding:0 30px;box-shadow:0 10px 28px #0d29422e}
+.brand img{width:182px;height:64px;padding:8px 12px;border-radius:12px;background:#fffffff5}
+.brand h1{font-size:24px;letter-spacing:.2px}.brand p{color:#bcd2df;font-size:13px}
+header .secondary{background:#ffffff1a;border-color:#ffffff2e;color:#fff}
+.role-badge{background:#07884633;border:1px solid #5ee29f5c;color:#9cf0c4}
+.topbar{top:94px;padding:12px 30px;background:#fffffff0;backdrop-filter:blur(12px);box-shadow:0 8px 24px #102c4614}
+.app-shell{grid-template-columns:360px minmax(0,1fr);min-height:calc(100vh - 154px)}
+aside{top:154px;height:calc(100vh - 154px);padding:22px;background:linear-gradient(180deg,#102c46,#153b59);border:0;color:#fff}
+aside input{background:#fffffff7;border:0;padding:13px 14px}
+.view-switch{grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;background:#ffffff14;border-radius:12px}
+.view-switch button{padding:8px 4px;font-size:11px;background:transparent;color:#bfd1dc}
+.view-switch button.active{background:#fff;color:var(--navy);box-shadow:0 4px 12px #00000026}
+aside .count{color:#9fb9c8}.vehicle-list{gap:9px}
+.vehicle-item{grid-template-columns:minmax(0,1fr) 68px;border:1px solid #ffffff17;background:#ffffff12;color:#fff;border-radius:13px}
+.vehicle-item strong{color:#fff}.vehicle-item small{color:#b5c8d3}
+.vehicle-item:hover,.vehicle-item.active{border-color:#6eeca98c;background:#0788463d}
+.vehicle-list-photo{border-color:#ffffff21;background:#ffffff1a}
+main{padding:28px}
+.kpi,.alerts,.content-panel,.card-head,.dashboard-panel,.empty-state{border:1px solid #c7d8dfcc;box-shadow:0 12px 34px #102c4612}
+.kpi{border-radius:16px;position:relative;overflow:hidden}.kpi:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--green)}
+.kpi strong{color:var(--navy)}.card-head{border-radius:18px 18px 0 0}
+.tabs{background:#fff;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.tabs button{color:var(--muted)}.tabs button.active{color:var(--green);border-bottom-color:var(--green)}
+input:focus,select:focus,textarea:focus{outline:3px solid #07884621;border-color:var(--green)}
+.badge.active,.dot.on{background:var(--green)}.upload-box{border-color:#9ed7ba;background:var(--mint)}
+.login-view{background:radial-gradient(circle at 20% 10%,#1b5574,#102c46 55%,#071b2c)}
+.login-card{border:0;border-radius:22px;box-shadow:0 28px 70px #00000047}.login-card img{width:230px}
+@media(max-width:1050px){header{height:auto;min-height:94px;padding:14px 18px;align-items:flex-start}.header-actions{justify-content:flex-end}.topbar{position:static;padding:10px 18px}.app-shell{grid-template-columns:300px minmax(0,1fr)}aside{position:static;height:auto;min-height:calc(100vh - 160px)}}
+@media(max-width:780px){header{position:static;display:block}.brand img{width:150px}.header-actions{margin-top:12px;justify-content:flex-start}.app-shell{display:block}aside{min-height:auto;position:static}main{padding:16px}.view-switch{grid-template-columns:repeat(4,minmax(65px,1fr));overflow-x:auto}}

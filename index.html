@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>HOGAbusiness FleetDesk · Fuhrparkmanagement</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="theme.css" />
+  </head>
+  <body>
+    <div id="loginView" class="login-view">
+      <form id="loginForm" class="login-card">
+        <img src="Logo HOGAbusiness trans.png" alt="HOGA" />
+        <h1>FleetDesk</h1>
+        <p>Anmeldung über Firebase Authentication</p>
+        <label>E-Mail<input id="loginEmail" type="email" required /></label>
+        <label
+          >Passwort<input id="loginPassword" type="password" required
+        /></label>
+        <button id="forgotPasswordBtn" type="button" class="login-link">Passwort vergessen</button>
+        <button type="submit">Anmelden</button>
+
+        <p id="loginMessage" class="error-text"></p>
+      </form>
+    </div>
+
+    <div id="appView" class="hidden">
+      <header>
+        <div class="brand">
+          <img src="Logo HOGAbusiness trans.png" alt="HOGA" />
+          <div>
+            <h1>FleetDesk</h1>
+            <p>Fuhrpark intelligent organisieren</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span id="roleBadge" class="role-badge"></span>
+          <button id="settingsBtn" class="secondary">⚙ Einstellungen</button>
+          <button id="backupBtn" class="secondary">↓ Datensicherung</button>
+          <button id="restoreBtn" class="secondary">↑ Backup einspielen</button>
+          <input
+            id="restoreInput"
+            class="hidden"
+            type="file"
+            accept="application/json,.json"
+          />
+          <button id="logoutBtn" class="secondary">Abmelden</button>
+        </div>
+      </header>
+      <div class="topbar">
+        <button id="dashboardBtn">▦ Übersicht</button>
+        <button id="addVehicleBtn" class="success">＋ Fahrzeug anlegen</button>
+        <div class="export-wrap">
+          <button id="csvBtn" class="secondary">CSV-Export ▾</button>
+          <div id="exportMenu" class="export-menu hidden">
+            <button data-export="vehicles">Fahrzeugliste</button
+            ><button data-export="charges">Verrechnungsbeträge</button
+            ><button data-export="both">Beide Listen</button>
+          </div>
+        </div>
+        <button id="historyBtn" class="secondary">Historie</button>
+      </div>
+      <div class="app-shell">
+        <aside>
+          <div class="search-wrap">
+            <input
+              id="searchInput"
+              placeholder="Kennzeichen, Marke, Modell …"
+            />
+          </div>
+          <div class="view-switch" id="viewSwitch">
+            <button data-view="all" class="active">Alle</button
+            ><button data-view="active">Aktiv</button
+            ><button data-view="inactive">Inaktiv</button
+            ><button data-view="archive">Archiv</button>
+          </div>
+          <div id="vehicleCount" class="count"></div>
+          <div id="vehicleList" class="vehicle-list"></div>
+        </aside>
+        <main>
+          <section id="dashboard" class="dashboard"></section>
+          <div id="emptyState" class="empty-state hidden">
+            <h2>Fahrzeug auswählen</h2>
+            <p>
+              Wähle links ein Fahrzeug aus, um die vollständige Fahrzeugkartei
+              zu öffnen.
+            </p>
+          </div>
+          <section id="vehicleCard" class="hidden">
+            <div class="card-head">
+              <div class="card-identity">
+                <span id="activeBadge" class="badge"></span>
+                <h2 id="vehicleTitle"></h2>
+                <p id="vehicleSubtitle"></p>
+              </div>
+              <div class="vehicle-card-photo-wrap">
+                <button id="vehiclePhotoButton" class="vehicle-card-photo" type="button" disabled>
+                  <img id="vehiclePhotoImage" class="hidden" alt="">
+                  <span id="vehiclePhotoPlaceholder" class="vehicle-photo-placeholder" aria-hidden="true">🚗</span>
+                  <span class="vehicle-photo-edit-hint">Foto ändern</span>
+                </button>
+                <input id="vehiclePhotoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+              </div>
+              <div class="card-actions">
+                <button id="editBtn">Bearbeiten</button
+                ><button id="archiveBtn" class="secondary hidden">
+                  Archivieren</button
+                ><button id="vehicleHistoryBtn" class="secondary">
+                  Historie</button
+                ><button id="deleteVehicleBtn" class="danger hidden">
+                  Fahrzeug löschen</button
+                ><button id="saveBtn" class="success hidden">Speichern</button
+                ><button id="cancelBtn" class="secondary hidden">
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+            <nav id="tabs" class="tabs"></nav>
+            <div class="tab-tools">
+              <div id="yearTools" class="hidden">
+                <label
+                  >Jahr
+                  <select id="yearSelect"></select
+                ></label>
+              </div>
+            </div>
+            <div id="tabContent"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="appointmentModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>Termin hinzufügen</h3>
+          <button data-close="appointmentModal" class="icon">×</button>
+        </div>
+        <form id="appointmentForm">
+          <label
+            >Terminart<select name="type">
+              <option>Service / Inspektion</option>
+              <option>Wartung</option>
+              <option>Reparatur</option>
+              <option>HU / TÜV</option>
+              <option>UVV</option>
+              <option>Reifenwechsel</option>
+              <option>Sonstiger Termin</option>
+            </select></label
+          ><label>Termin<input type="date" name="date" required /></label
+          ><label>Werkstatt<input name="workshop" /></label
+          ><label>km-Stand<input type="number" name="mileage" min="0" /></label
+          ><label
+            >Beschreibung<textarea name="description" rows="4"></textarea>
+          </label>
+          <div class="modal-actions">
+            <button
+              type="button"
+              data-close="appointmentModal"
+              class="secondary"
+            >
+              Abbrechen</button
+            ><button type="submit" class="success">Termin speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="vehicleModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>Fahrzeug anlegen</h3>
+          <button data-close="vehicleModal" class="icon">×</button>
+        </div>
+        <form id="vehicleForm">
+          <label
+            >Kennzeichen Präfix<input
+              name="prefix"
+              placeholder="z. B. XYZ" /></label
+          ><label
+            >Kennzeichen<input
+              name="plate"
+              required
+              placeholder="z. B. XY 123" /></label
+          ><label>Marke<input name="brand" /></label
+          ><label>Modell<input name="model" /></label
+          ><label
+            >Typ / Aufbau<select name="type">
+              <option value=""></option>
+              <option>PKW</option>
+              <option>Transporter</option>
+              <option>LKW</option>
+              <option>Pritsche</option>
+              <option>Anhänger</option>
+              <option>Kasten offen</option>
+              <option>Kasten Hochdach</option>
+              <option>Kasten normal</option>
+              <option>Kasten geschlossen</option>
+              <option>LKW Plane + Sprigel</option>
+              <option>Pritsche Plane</option>
+              <option>Plane hoch + Ladebordwand</option>
+              <option>Kasten Hochdach lang</option>
+            </select></label
+          ><label>Fahrzeug-ID / FIN<input name="vin" /></label>
+          <div class="modal-actions">
+            <button type="button" data-close="vehicleModal" class="secondary">
+              Abbrechen</button
+            ><button type="submit" class="success">Fahrzeug anlegen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>Allgemeine Einstellungen</h3>
+          <button data-close="settingsModal" class="icon">×</button>
+        </div>
+        <form id="settingsForm">
+          <p class="settings-note">
+            Die Erinnerungen gelten allgemein für alle Fahrzeuge.
+          </p>
+          <div class="settings-grid">
+            <label class="setting-row"
+              ><span
+                ><input type="checkbox" name="remindFirstAid" /> Verbandkasten
+                erinnern</span
+              ><input
+                type="number"
+                name="firstAidDays"
+                min="0"
+                step="1"
+              /><small>Tage vor Ablauf</small></label
+            >
+            <label class="setting-row"
+              ><span
+                ><input type="checkbox" name="remindHu" /> HU / TÜV
+                erinnern</span
+              ><input type="number" name="huDays" min="0" step="1" /><small
+                >Tage vor Fälligkeit</small
+              ></label
+            >
+            <label class="setting-row"
+              ><span
+                ><input type="checkbox" name="remindUvv" /> UVV erinnern</span
+              ><input type="number" name="uvvDays" min="0" step="1" /><small
+                >Tage vor Fälligkeit</small
+              ></label
+            >
+            <label class="setting-row"
+              ><span
+                ><input type="checkbox" name="remindAppointments" /> Sonstige
+                Termine erinnern</span
+              ><input
+                type="number"
+                name="appointmentDays"
+                min="0"
+                step="1"
+              /><small>Tage vor Fälligkeit</small></label
+            >
+            <label class="setting-row"
+              ><span
+                ><input type="checkbox" name="remindLeasing" /> Leasingende
+                erinnern</span
+              ><input
+                type="number"
+                name="leasingDays"
+                min="0"
+                step="1"
+              /><small>Tage vor Fälligkeit</small></label
+            >
+          </div>
+          <div class="modal-actions">
+            <button type="button" data-close="settingsModal" class="secondary">
+              Abbrechen</button
+            ><button type="submit" class="success">
+              Einstellungen speichern
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="chargeExportModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>Verrechnungsbeträge exportieren</h3>
+          <button data-close="chargeExportModal" class="icon">×</button>
+        </div>
+        <form id="chargeExportForm">
+          <label>Jahr<select name="year"></select></label
+          ><label
+            >Monat<select name="month">
+              <option value="1">Januar</option>
+              <option value="2">Februar</option>
+              <option value="3">März</option>
+              <option value="4">April</option>
+              <option value="5">Mai</option>
+              <option value="6">Juni</option>
+              <option value="7">Juli</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Dezember</option>
+            </select></label
+          ><input type="hidden" name="mode" value="charges" />
+          <div class="modal-actions">
+            <button
+              type="button"
+              data-close="chargeExportModal"
+              class="secondary"
+            >
+              Abbrechen</button
+            ><button type="submit" class="success">CSV exportieren</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="historyModal" class="modal hidden">
+      <div class="modal-box modal-wide">
+        <div class="modal-head">
+          <h3 id="historyTitle">Historie</h3>
+          <button data-close="historyModal" class="icon">×</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+        <div class="modal-actions">
+          <button type="button" data-close="historyModal" class="secondary">
+            Schließen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboardDetailModal" class="modal hidden">
+      <div class="modal-box modal-wide dashboard-detail-modal">
+        <div class="modal-head">
+          <div>
+            <h3 id="dashboardDetailTitle">Dashboard-Übersicht</h3>
+            <p id="dashboardDetailSubtitle" class="modal-subtitle"></p>
+          </div>
+          <button data-close="dashboardDetailModal" class="icon">×</button>
+        </div>
+        <div
+          id="dashboardDetailFilters"
+          class="dashboard-detail-filters hidden"
+        ></div>
+        <div id="dashboardDetailContent" class="dashboard-detail-content"></div>
+        <div class="modal-actions">
+          <button
+            type="button"
+            data-close="dashboardDetailModal"
+            class="secondary"
+          >
+            Schließen
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="loadingOverlay" class="loading-overlay hidden" role="status" aria-live="polite" aria-busy="true">
+      <div class="loading-card">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <strong id="loadingTitle">Bitte warten …</strong>
+        <span id="loadingMessage">Daten werden verarbeitet.</span>
+        <div class="loading-progress-track" aria-hidden="true">
+          <div id="loadingProgress" class="loading-progress indeterminate"></div>
+        </div>
+        <small id="loadingPercent" class="loading-percent"></small>
+      </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
