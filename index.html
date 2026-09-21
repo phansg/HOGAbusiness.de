@@ -35,39 +35,51 @@
         </div>
         <div class="header-actions">
           <span id="roleBadge" class="role-badge"></span>
-          <button id="settingsBtn" class="secondary">⚙ Einstellungen</button>
-          <button id="backupBtn" class="secondary">↓ Datensicherung</button>
-          <button id="restoreBtn" class="secondary">↑ Backup einspielen</button>
+          <div class="main-menu-wrap">
+            <button id="mainMenuBtn" class="secondary" type="button">☰ Menü</button>
+            <div id="mainMenu" class="main-menu hidden">
+              <button id="dashboardBtn" type="button">Dashboard</button>
+              <button id="vehiclesBtn" type="button">Fahrzeuge</button>
+              <button id="addVehicleBtn" type="button">Fahrzeug anlegen</button>
+              <div class="menu-divider"></div>
+              <button id="historyBtn" type="button">Gesamthistorie</button>
+              <div class="menu-sub-wrap">
+                <button id="csvBtn" type="button">CSV-Export <span>›</span></button>
+                <div id="exportMenu" class="export-menu hidden">
+                  <button data-export="vehicles">Fahrzeugliste</button>
+                  <button data-export="charges">Verrechnungsbeträge</button>
+                  <button data-export="both">Beide Listen</button>
+                </div>
+              </div>
+              <button id="settingsBtn" type="button">Einstellungen</button>
+              <button id="backupBtn" type="button">Datensicherung herunterladen</button>
+              <button id="restoreBtn" type="button">Backup einspielen</button>
+            </div>
+          </div>
           <input
             id="restoreInput"
             class="hidden"
             type="file"
             accept="application/json,.json"
           />
-          <button id="logoutBtn" class="secondary">Abmelden</button>
+          <button id="logoutBtn" class="logout-button">Abmelden</button>
         </div>
       </header>
-      <div class="topbar">
-        <button id="dashboardBtn">▦ Übersicht</button>
-        <button id="addVehicleBtn" class="success">＋ Fahrzeug anlegen</button>
-        <div class="export-wrap">
-          <button id="csvBtn" class="secondary">CSV-Export ▾</button>
-          <div id="exportMenu" class="export-menu hidden">
-            <button data-export="vehicles">Fahrzeugliste</button
-            ><button data-export="charges">Verrechnungsbeträge</button
-            ><button data-export="both">Beide Listen</button>
-          </div>
-        </div>
-        <button id="historyBtn" class="secondary">Historie</button>
-      </div>
       <div class="app-shell">
-        <aside>
-          <div class="search-wrap">
+        <aside id="vehicleBrowser" class="vehicle-browser hidden">
+          <div class="vehicle-browser-head">
+            <div><span class="eyebrow">Fuhrpark</span><h2>Fahrzeuge</h2><p>Fahrzeug auswählen und Kartei öffnen</p></div>
+            <button id="browserAddVehicleBtn" class="success" type="button">＋ Fahrzeug anlegen</button>
+          </div>
+          <div class="vehicle-browser-grid">
+          <div class="vehicle-filter-panel">
+            <h3>Suchen & filtern</h3>
+            <div class="search-wrap">
             <input
               id="searchInput"
               placeholder="Kennzeichen, Marke, Modell …"
             />
-          </div>
+            </div>
           <div class="view-switch" id="viewSwitch">
             <button data-view="all" class="active">Alle</button
             ><button data-view="active">Aktiv</button
@@ -75,7 +87,14 @@
             ><button data-view="archive">Archiv</button>
           </div>
           <div id="vehicleCount" class="count"></div>
-          <div id="vehicleList" class="vehicle-list"></div>
+          </div>
+          <div class="rolodex-panel">
+            <button id="rolodexUp" class="rolodex-arrow" type="button" aria-label="Vorheriges Fahrzeug">▲</button>
+            <div class="rolodex-stage"><div id="vehicleList" class="vehicle-list"></div></div>
+            <button id="rolodexDown" class="rolodex-arrow" type="button" aria-label="Nächstes Fahrzeug">▼</button>
+            <button id="openVehicleBtn" class="success open-vehicle-button" type="button">Fahrzeugkartei öffnen</button>
+          </div>
+          </div>
         </aside>
         <main>
           <section id="dashboard" class="dashboard"></section>
@@ -114,8 +133,11 @@
                   Abbrechen
                 </button>
               </div>
+              <div class="vehicle-section-menu-wrap">
+                <button id="tabMenuBtn" class="secondary" type="button">Bereich auswählen ▾</button>
+                <nav id="tabs" class="vehicle-section-menu hidden"></nav>
+              </div>
             </div>
-            <nav id="tabs" class="tabs"></nav>
             <div class="tab-tools">
               <div id="yearTools" class="hidden">
                 <label
