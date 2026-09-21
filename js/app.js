@@ -148,6 +148,8 @@ let baseData,
   draft = null,
   currentUser = null,
   currentView = "all",
+  rolodexIndex = 0,
+  filteredVehicles = [],
   settings = { ...defaultSettings };
 
 let loadingVisible = false;
@@ -363,6 +365,18 @@ function bindStatic() {
     }
   };
   $("#logoutBtn").onclick = () => DEMO_MODE ? alert("Im GitHub-Testbetrieb ist keine Abmeldung erforderlich.") : signOut(fleetAuth);
+  $("#mainMenuBtn").onclick = (e) => {
+    e.stopPropagation();
+    $("#mainMenu").classList.toggle("hidden");
+  };
+  $("#vehiclesBtn").onclick = showVehicleBrowser;
+  $("#browserAddVehicleBtn").onclick = () => openModal("vehicleModal");
+  $("#rolodexUp").onclick = () => moveRolodex(-1);
+  $("#rolodexDown").onclick = () => moveRolodex(1);
+  $("#openVehicleBtn").onclick = () => {
+    const vehicle = filteredVehicles[rolodexIndex];
+    if (vehicle) selectVehicle(vehicle.id);
+  };
   $("#searchInput").oninput = renderList;
   $("#viewSwitch").onclick = (e) => {
     const b = e.target.closest("[data-view]");
@@ -411,7 +425,11 @@ function bindStatic() {
     e.stopPropagation();
     $("#exportMenu").classList.toggle("hidden");
   };
-  document.onclick = () => $("#exportMenu").classList.add("hidden");
+  document.onclick = () => {
+    $("#exportMenu").classList.add("hidden");
+    $("#mainMenu").classList.add("hidden");
+    $("#tabs").classList.add("hidden");
+  };
   $("#exportMenu").onclick = (e) => {
     e.stopPropagation();
     const b = e.target.closest("[data-export]");
@@ -422,6 +440,10 @@ function bindStatic() {
   $("#yearSelect").onchange = (e) => {
     year = e.target.value;
     renderContent();
+  };
+  $("#tabMenuBtn").onclick = (e) => {
+    e.stopPropagation();
+    $("#tabs").classList.toggle("hidden");
   };
   $("#appointmentForm").onsubmit = addAppointment;
   $$("[data-close]").forEach(
@@ -441,7 +463,7 @@ function login(user) {
     read: "Lesemodus",
   };
   $("#roleBadge").textContent = DEMO_MODE ? "● Testbetrieb · lokal" : (roleLabels[user.role] || user.role);
-  $("#logoutBtn").classList.toggle("hidden", DEMO_MODE);
+  $("#logoutBtn").classList.remove("hidden");
   const readOnly = isReadOnly();
   $("#addVehicleBtn").classList.toggle("hidden", readOnly);
   $("#deleteVehicleBtn").classList.toggle("hidden", user.role !== "admin");
@@ -560,25 +582,46 @@ function renderList() {
             : !v.archived && !v.active;
     return hay.includes(q) && view;
   });
+  filteredVehicles = list;
+  if (rolodexIndex >= list.length) rolodexIndex = Math.max(0, list.length - 1);
+  if (selectedId) {
+    const selectedIndex = list.findIndex((v) => v.id === selectedId);
+    if (selectedIndex >= 0) rolodexIndex = selectedIndex;
+  }
+  const v = list[rolodexIndex];
   $("#vehicleCount").textContent =
     `${list.length} von ${vehicles.length} Fahrzeugen`;
-  $("#vehicleList").innerHTML =
-    list
-      .map(
-        (v) =>
-          `<button class="vehicle-item ${v.id === selectedId ? "active" : ""}" data-id="${v.id}"><span class="vehicle-item-copy"><strong><span class="dot ${v.archived ? "archive" : v.active ? "on" : ""}"></span>${esc(v.displayName || "Ohne Kennzeichen")}</strong><small>${esc(v.master.I || "")} ${esc(v.master.J || "")} · ${esc(v.master.AO || v.master.AN || "")}</small></span><span class="vehicle-list-photo">${v.vehiclePhoto ? `<img src="${esc(v.vehiclePhoto)}" alt="Fahrzeugfoto ${esc(v.displayName || "")}">` : '<span class="vehicle-photo-placeholder" aria-hidden="true">🚗</span>'}</span></button>`,
-      )
-      .join("") || '<p class="count">Keine Fahrzeuge in dieser Ansicht.</p>';
+  $("#vehicleList").innerHTML = v
+    ? `<button class="vehicle-item rolodex-card" data-id="${v.id}"><span class="vehicle-list-photo">${v.vehiclePhoto ? `<img src="${esc(v.vehiclePhoto)}" alt="Fahrzeugfoto ${esc(v.displayName || "")}">` : '<span class="vehicle-photo-placeholder" aria-hidden="true">🚗</span>'}</span><span class="vehicle-item-copy"><span class="rolodex-position">${rolodexIndex + 1} / ${list.length}</span><strong><span class="dot ${v.archived ? "archive" : v.active ? "on" : ""}"></span>${esc(v.displayName || "Ohne Kennzeichen")}</strong><small>${esc(v.master.I || "")} ${esc(v.master.J || "")}</small><span class="rolodex-meta">${esc(v.master.K || "Fahrzeug")} · ${esc(v.master.AO || v.master.AN || "Ohne Zuordnung")}</span></span></button>`
+    : '<div class="rolodex-empty"><strong>Keine Fahrzeuge gefunden</strong><span>Bitte Suche oder Filter ändern.</span></div>';
+  $("#rolodexUp").disabled = list.length < 2;
+  $("#rolodexDown").disabled = list.length < 2;
+  $("#openVehicleBtn").disabled = !v;
   $("#vehicleList").onclick = (e) => {
     const b = e.target.closest("[data-id]");
     if (b) selectVehicle(b.dataset.id);
   };
+}
+function moveRolodex(direction) {
+  if (!filteredVehicles.length) return;
+  rolodexIndex = (rolodexIndex + direction + filteredVehicles.length) % filteredVehicles.length;
+  selectedId = filteredVehicles[rolodexIndex].id;
+  renderList();
+}
+function showVehicleBrowser() {
+  editing = false;
+  $("#dashboard").classList.add("hidden");
+  $("#vehicleCard").classList.add("hidden");
+  $("#emptyState").classList.add("hidden");
+  $("#vehicleBrowser").classList.remove("hidden");
+  renderList();
 }
 function selectVehicle(id) {
   selectedId = id;
   editing = false;
   draft = null;
   $("#dashboard").classList.add("hidden");
+  $("#vehicleBrowser").classList.add("hidden");
   $("#emptyState").classList.add("hidden");
   $("#vehicleCard").classList.remove("hidden");
   toggleEdit();
@@ -590,6 +633,7 @@ function showDashboard() {
   selectedId = null;
   editing = false;
   $("#vehicleCard").classList.add("hidden");
+  $("#vehicleBrowser").classList.add("hidden");
   $("#emptyState").classList.add("hidden");
   $("#dashboard").classList.remove("hidden");
   renderList();
@@ -706,9 +750,12 @@ function renderTabs() {
     const b = e.target.closest("[data-tab]");
     if (!b) return;
     activeTab = b.dataset.tab;
+    $("#tabs").classList.add("hidden");
     renderTabs();
     renderContent();
   };
+  const label = tabs.find(([id]) => id === activeTab)?.[1] || "Bereich auswählen";
+  $("#tabMenuBtn").textContent = `${label} ▾`;
   $("#yearSelect").innerHTML = [2025, 2026, 2027, 2028, 2029, 2030]
     .map((y) => `<option ${String(y) === year ? "selected" : ""}>${y}</option>`)
     .join("");
